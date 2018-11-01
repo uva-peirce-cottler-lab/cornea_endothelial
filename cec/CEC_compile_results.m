@@ -14,6 +14,10 @@ in_path = [base_path '\16. CEC Project\input_images'];
 out_path = [in_path '\out'];
 
 tif_names_sarr = dir([in_path '/orig*.tif']);
+% tif_names = {tif_names_sarr(:).name};
+
+% ex_str = "orig_TMX Midterm_EyeDrop_Ind,Exp_283.2 My11TOM Eyedrop D21 CEC Tile,1L_cornea";
+% tif_names(cellfun(@(x) ~isempty(regexp(x,ex_str,'once')), tif_names))'
 
 
 % parse names to save master csv file
@@ -89,247 +93,71 @@ for n=1:numel(tif_names_sarr)
     
 end
 
-
+fig_pos = [500 500 200 200];
 save([in_path '/CEC_results.mat']);
 
 load([in_path '/CEC_results.mat']);
 keyboard
+cell_count_field = 'marked_cells_tot';
 
-fig_pos = [500 500 250 200];
 
-% IP Induction Experiment
+%% IP Induction Experiment
 hf = figure('Units','Pixels');
 ix1=strcmp(meta_tbl.tx_type,'IP') & ...
     strcmp(meta_tbl.term,'Long') & meta_tbl.day==28;
 ix2=strcmp(meta_tbl.tx_type,'IP') & ...
     strcmp(meta_tbl.term,'Long') & meta_tbl.day==112;
-y1=meta_tbl.tot_cells(ix1);
-y2=meta_tbl.tot_cells(ix2);
-plot(1+(rand(size(y1,1),1)-.5)/10,y1,'ro', 'MarkerSize',4); hold on
-add_errorbar(gcf, 1, y1, 0.4,'ABSOLUTE_WIDTH',1)
-plot(2+(rand(size(y2,1),1)-.5)/10,y2,'bo', 'MarkerSize',4)
-add_errorbar(gcf, 2, y2, 0.4,'ABSOLUTE_WIDTH',1)
-hold off
-ylabel('Total Cells')
-set(gca,'xtick',[1:2],'xticklabel',{'6','16'})
-set(gca,'Box', 'off', 'TickDir' , 'out', 'TickLength', [.02 .02], ...
-    'XMinorTick', 'off', 'FontName', 'Arial', 'YMinorTick', 'on', ...
-    'YGrid', 'on', 'XGrid', 'off', 'XColor', [.3 .3 .3], ...
-    'YColor', [.3 .3 .3],  'LineWidth', 1);
-set(gcf,'position',fig_pos)
-axis([.5 2.5 ylim])
-% plot(repmat(1:5,[5 1]),
-[h, p] = ttest2(y1,y2);
+plot_cell_count(meta_tbl.(cell_count_field)(ix1),...
+    meta_tbl.(cell_count_field)(ix2),'RFP+ Cell Count',{'6','16'})
 
-hf = figure('Units','Pixels');
-y1 = [meta_tbl.frac_mark_cells_q1(ix1) meta_tbl.frac_mark_cells_q2(ix1) ...
+
+plot_radial_density(0:.25:1,[meta_tbl.frac_mark_cells_q1(ix1) meta_tbl.frac_mark_cells_q2(ix1) ...
     meta_tbl.frac_mark_cells_q3(ix1) meta_tbl.frac_mark_cells_q4(ix1) ...
-    meta_tbl.frac_mark_cells_q5(ix1)];
-y2 = [meta_tbl.frac_mark_cells_q1(ix2) meta_tbl.frac_mark_cells_q2(ix2) ...
+    meta_tbl.frac_mark_cells_q5(ix1)], ...
+    'Relative Rad. to Center','Fraction of RFP+ Cells','r')
+plot_radial_density(0:.25:1,[meta_tbl.frac_mark_cells_q1(ix2) meta_tbl.frac_mark_cells_q2(ix2) ...
     meta_tbl.frac_mark_cells_q3(ix2) meta_tbl.frac_mark_cells_q4(ix2) ...
-    meta_tbl.frac_mark_cells_q5(ix2)];
-errorbar(0:.25:1,mean(y1),std(y1),'r-') 
-hold on
-errorbar(0:.25:1,mean(y2),std(y2),'b-') 
-ylabel('Fraction of TOM+ Cells')
-xlabel('Relative Rad. to Center')
-% set(gca,'xtick',[1:5],'xticklabel',{'0','16w'})
-set(gca,'Box', 'off', 'TickDir' , 'out', 'TickLength', [.02 .02], ...
-    'XMinorTick', 'on', 'FontName', 'Arial', 'YMinorTick', 'on', ...
-    'YGrid', 'on', 'XGrid', 'off', 'XColor', [.3 .3 .3], ...
-    'YColor', [.3 .3 .3],  'LineWidth', 1);
-set(gcf,'position',fig_pos)
-axis([-.1 1.1 ylim])
-[p,tbl,stats] =anova2(vertcat(y1, y2(1:size(y1,1),:)),8);
-multcompare(stats)
+    meta_tbl.frac_mark_cells_q5(ix2)], ...
+    'Relative Rad. to Center','Fraction of RFP+ Cells','b')
 
 
 
-% Eyedrop Induction short Experiment
+%% Eyedrop Induction short Experiment
 hf = figure('Units','Pixels');
 ix1 = strcmp(meta_tbl.tx_type,'EyeDrop') & ...
     strcmp(meta_tbl.term,'Short') & meta_tbl.day==24;
 ix2 = strcmp(meta_tbl.tx_type,'EyeDrop') & ...
     strcmp(meta_tbl.term,'Short') & meta_tbl.day==48;
-y1=meta_tbl.tot_cells(ix1);
-y2=meta_tbl.tot_cells(ix2);
-plot(1+(rand(size(y1,1),1)-.5)/5,y1,'ro'); hold on
-add_errorbar(gcf, 1, y1, 0.4,'ABSOLUTE_WIDTH',1)
-plot(2+(rand(size(y2,1),1)-.5)/5,y2,'bo')
-add_errorbar(gcf, 2, y2, 0.4,'ABSOLUTE_WIDTH',1)
-hold off
-ylabel('Total Cells')
-set(gca,'xtick',[1:2],'xticklabel',{'24','48'})
-set(gca,'Box', 'off', 'TickDir' , 'out', 'TickLength', [.02 .02], ...
-    'XMinorTick', 'off', 'FontName', 'Arial', 'YMinorTick', 'on', ...
-    'YGrid', 'on', 'XGrid', 'off', 'XColor', [.3 .3 .3], ...
-    'YColor', [.3 .3 .3],  'LineWidth', 1);
-set(gcf,'position',fig_pos)
-axis([.5 2.5 ylim])
-[h, p] = ttest2(y1,y2);
 
-hf = figure('Units','Pixels');
-y1 = [meta_tbl.frac_mark_cells_q1(ix1) meta_tbl.frac_mark_cells_q2(ix1) ...
+plot_cell_count(meta_tbl.(cell_count_field)(ix1),...
+    meta_tbl.(cell_count_field)(ix2),'RFP+ Cell Count')
+
+
+plot_radial_density(0:.25:1,[meta_tbl.frac_mark_cells_q1(ix1) meta_tbl.frac_mark_cells_q2(ix1) ...
     meta_tbl.frac_mark_cells_q3(ix1) meta_tbl.frac_mark_cells_q4(ix1) ...
-    meta_tbl.frac_mark_cells_q5(ix1)];
-y2 = [meta_tbl.frac_mark_cells_q1(ix2) meta_tbl.frac_mark_cells_q2(ix2) ...
+    meta_tbl.frac_mark_cells_q5(ix1)], ...
+    'Relative Rad. to Center','Fraction of RFP+ Cells','r')
+plot_radial_density(0:.25:1,[meta_tbl.frac_mark_cells_q1(ix2) meta_tbl.frac_mark_cells_q2(ix2) ...
     meta_tbl.frac_mark_cells_q3(ix2) meta_tbl.frac_mark_cells_q4(ix2) ...
-    meta_tbl.frac_mark_cells_q5(ix2)];
-errorbar(0:.25:1,mean(y1),std(y1),'r') 
-hold on
-errorbar(0:.25:1,mean(y2),std(y2),'b') 
-ylabel('Fraction of TOM+ Cells')
-xlabel('Relative Rad. to Center')
-% set(gca,'xtick',[1:5],'xticklabel',{'0','16w'})
-set(gca,'Box', 'off', 'TickDir' , 'out', 'TickLength', [.02 .02], ...
-    'XMinorTick', 'on', 'FontName', 'Arial', 'YMinorTick', 'on', ...
-    'YGrid', 'on', 'XGrid', 'off', 'XColor', [.3 .3 .3], ...
-    'YColor', [.3 .3 .3],  'LineWidth', 1);
-set(gcf,'position',fig_pos)
-axis([-.1 1.1 ylim])
-[p,tbl,stats] =anova2(vertcat(y1(1:size(y2,1),:), y2),size(y2,1));
-multcompare(stats)
+    meta_tbl.frac_mark_cells_q5(ix2)], ...
+    'Relative Rad. to Center','Fraction of RFP+ Cells','r')
 
 
-% Eyedrop Induction mid Experiment
+%% Eyedrop Induction mid Experiment
 hf = figure('Units','Pixels');
 ix1 = strcmp(meta_tbl.tx_type,'EyeDrop') & ...
     strcmp(meta_tbl.term,'Mid') & meta_tbl.day==2;
 ix2 = strcmp(meta_tbl.tx_type,'EyeDrop') & ...
     strcmp(meta_tbl.term,'Mid') & meta_tbl.day==21;
-ix3 = strcmp(meta_tbl.tx_type,'EyeDrop') & ...
-    strcmp(meta_tbl.term,'Mid') & meta_tbl.day==42;
 
-y1=meta_tbl.tot_cells(ix1);
-y2=meta_tbl.tot_cells(ix2);
-y3=meta_tbl.tot_cells(ix3);
-plot(1+(rand(size(y1,1),1)-.5)/5,y1,'ro'); hold on
-add_errorbar(gcf, 1, y1, 0.4,'ABSOLUTE_WIDTH',1)
-plot(2+(rand(size(y2,1),1)-.5)/5,y2,'bo')
-add_errorbar(gcf, 2, y2, 0.4,'ABSOLUTE_WIDTH',1)
-plot(3+(rand(size(y3,1),1)-.5)/5,y3,'bo')
-add_errorbar(gcf, 3, y3, 0.4,'ABSOLUTE_WIDTH',1)
-hold off
-ylabel('Total Cells')
-set(gca,'xtick',[1:3],'xticklabel',{'2','21','42'})
-set(gca,'Box', 'off', 'TickDir' , 'out', 'TickLength', [.02 .02], ...
-    'XMinorTick', 'off', 'FontName', 'Arial', 'YMinorTick', 'on', ...
-    'YGrid', 'on', 'XGrid', 'off', 'XColor', [.3 .3 .3], ...
-    'YColor', [.3 .3 .3],  'LineWidth', 1);
-set(gcf,'position',fig_pos)
-axis([.5 3.5 ylim])
-% [h, p] = anova(y1,y2);
+plot_cell_count(meta_tbl.(cell_count_field)(ix1),...
+    meta_tbl.(cell_count_field)(ix2),'RFP+ Cell Count',{'2','21'})
 
-hf = figure('Units','Pixels');
-y1 = [meta_tbl.frac_mark_cells_q1(ix1) meta_tbl.frac_mark_cells_q2(ix1) ...
+plot_radial_density(0:.25:1,[meta_tbl.frac_mark_cells_q1(ix1) meta_tbl.frac_mark_cells_q2(ix1) ...
     meta_tbl.frac_mark_cells_q3(ix1) meta_tbl.frac_mark_cells_q4(ix1) ...
-    meta_tbl.frac_mark_cells_q5(ix1)];
-y2 = [meta_tbl.frac_mark_cells_q1(ix2) meta_tbl.frac_mark_cells_q2(ix2) ...
+    meta_tbl.frac_mark_cells_q5(ix1)], ...
+    'Relative Rad. to Center','Fraction of RFP+ Cells','r')
+plot_radial_density(0:.25:1,[meta_tbl.frac_mark_cells_q1(ix2) meta_tbl.frac_mark_cells_q2(ix2) ...
     meta_tbl.frac_mark_cells_q3(ix2) meta_tbl.frac_mark_cells_q4(ix2) ...
-    meta_tbl.frac_mark_cells_q5(ix2)];
-y3 = [meta_tbl.frac_mark_cells_q1(ix3) meta_tbl.frac_mark_cells_q2(ix3) ...
-    meta_tbl.frac_mark_cells_q3(ix3) meta_tbl.frac_mark_cells_q4(ix3) ...
-    meta_tbl.frac_mark_cells_q5(ix3)];
-errorbar(0:.25:1,mean(y1),std(y1),'r') 
-hold on
-errorbar(0:.25:1,mean(y2),std(y2),'b') 
-errorbar(0:.25:1,mean(y3),std(y3),'g') 
-ylabel('Fraction of TOM+ Cells')
-xlabel('Relative Rad. to Center')
-% set(gca,'xtick',[1:5],'xticklabel',{'0','16w'})
-set(gca,'Box', 'off', 'TickDir' , 'out', 'TickLength', [.02 .02], ...
-    'XMinorTick', 'on', 'FontName', 'Arial', 'YMinorTick', 'on', ...
-    'YGrid', 'on', 'XGrid', 'off', 'XColor', [.3 .3 .3], ...
-    'YColor', [.3 .3 .3],  'LineWidth', 1);
-set(gcf,'position',fig_pos)
-axis([-.1 1.1 ylim])
-nsamples = min([size(y1,1) size(y2,1)  size(y3,1)]);
-[p,tbl,stats] =anova2(vertcat(y1(1:nsamples,:),y2(1:nsamples,:), y3(1:nsamples,:)),nsamples);
-multcompare(stats)
-
-
-
-
-%    % Find center of gravity of cornea
-%    st=regionprops(bw_cornea,'Centroid','ConvexImage');
-%    cornea_rc = round([st.Centroid(2) st.Centroid(1)]);
-%    
-%    
-%    % Make radial distance image from cornea center, display coordinates
-%    % only with mask foreground pixels
-%    bw_temp = false(size(bw_cornea));
-%    bw_temp(cornea_rc(1),cornea_rc(2))=1;
-%    ed_ctr = bwdist(bw_temp) .* bw_cornea;
-%    max_dist = max(ed_ctr(:));
-%    % Relative ED image from edge
-%    rel_ed_edge = (1-ed_ctr./max_dist) .* bw_cornea;
-%    
-%    % EU of cornea from border
-% %    ed_edge = bwdist(~bw_cornea);
-%    
-%    % 1-EU is distance from center
-% %    ed_ctr_rel = ed_edge./max(ed_edge(:));
-%    
-%    % Sample distance from each 
-%    lin_coords = round(sub2ind(size(bw_cornea),coords_tbl.X(:,1),coords_tbl.Y));
-%    
-%    % Get relative distance for each cell from edge to center
-%    cell_ctr_reldist{n} = rel_ed_edge(lin_coords);
-% %    cell_ctr_reldist{n} = rand(1,300);
-%    
-%    % Binn relative radial distances with histogram
-%    [binned_cell_ctr_reldist(n,:),edges] = histcounts(cell_ctr_reldist{n},10);
-%   
-%    % Calculate Actual Area of each Bin
-%    binned_area(n,:) = histcounts(rel_ed_edge, [1e-6 .1:.1:1]);
-   
-   
-% end
-% 
-% keyboard
-
-
-% all_cell_dist = vertcat(cell_ctr_reldist{:});
-% plot(all_cell_dist,'.')
-
-% binned_area = -diff(pi*(1-edges).^2);
-
-anm_binned_cel_ctr_reldist = binned_cell_ctr_reldist ./ binned_area;
-
-% anm_binned_cel_ctr_reldist = ...
-%     bsxfun(@rdivide, double(binned_cell_ctr_reldist), binned_area);
-
-% Plot cell count 
-errorbar(edges(1:end-1)+diff(edges)/2,mean(binned_cell_ctr_reldist(tp==2,:),1),...
-    std(binned_cell_ctr_reldist(tp==2,:),[],1),'r--');
-hold on
-errorbar(edges(1:end-1)+diff(edges)/2,mean(binned_cell_ctr_reldist(tp==21,:),1),...
-    std(binned_cell_ctr_reldist(tp==21,:),[],1),'b--');
-hold off
-legend({'Day 2','Day 21'});
-pos = get(gcf,'position');
-set(gcf,'position', [pos(1:2) 400 275]);
-[h,p] = ttest(mean(binned_cell_ctr_reldist(tp==2,:)),...
-    mean(binned_cell_ctr_reldist(tp==21,:)));
-
-
-% Plot cellcoutn normalized by area
-errorbar(edges(1:end-1)+diff(edges)/2,mean(anm_binned_cel_ctr_reldist(tp==2,:),1),...
-    std(anm_binned_cel_ctr_reldist(tp==2,:),[],1),'r--');
-hold on
-errorbar(edges(1:end-1)+diff(edges)/2,mean(anm_binned_cel_ctr_reldist(tp==21,:),1),...
-    std(anm_binned_cel_ctr_reldist(tp==21,:),[],1),'b--');
-hold off
-legend({'Day 2','Day 21'});
-pos = get(gcf,'position');
-set(gcf,'position', [pos(1:2) 400 275]);
-
-% Plot cell
-
-
-xa=xlim; ya=ylim;
-axis([xa(1) xa(2)+.05 ya]);
-
-
-% end
-
+    meta_tbl.frac_mark_cells_q5(ix2)], ...
+    'Relative Rad. to Center','Fraction of RFP+ Cells','b')
