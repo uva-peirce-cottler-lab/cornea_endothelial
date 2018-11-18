@@ -1,7 +1,18 @@
 function validation_images_from_tile(rgb_gs,rgb_thresh, img_names, ind)
 %UNTITLED2 Summary of this function goes here
 
-out_path = [getappdata(0,'proj_path') '/temp/validation_images'];
+
+% Load base path for box sync
+proj_path = getappdata(0,'proj_path');
+mkdir([proj_path '/temp/']);
+if isempty(dir([proj_path '/temp/base_path.mat']))
+    base_path = uigetdir('Select Box Folder');
+    save([proj_path '/temp/base_path.mat'],'base_path');
+else
+    load([proj_path '/temp/base_path.mat']);
+end
+out_path = [base_path '\16. CEC Project\validation_images'];
+
 mkdir(out_path);
 
 % Sub image index from greater image tile
