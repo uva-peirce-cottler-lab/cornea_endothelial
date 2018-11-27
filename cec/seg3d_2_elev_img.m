@@ -1,4 +1,4 @@
-function fs_proc_elev_xy = seg3d_2_elev_img(xyz_img,DownSample_Image)
+function [fs_proc_elev_xy,fs_flipped_elev_xy] = seg3d_2_elev_img(xyz_img,DownSample_Image)
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
 %     keyboard
@@ -45,6 +45,7 @@ proc_elev_xy = (img_dim(3) - proc_flipped_elev_xy);
 
 % Convert elevation image to fullsize
 fs_proc_elev_xy = imresize(uint8(proc_elev_xy),img_dim([1 2]));
+fs_flipped_elev_xy = imresize(uint8(flipped_elev_xy),img_dim([1 2]));
 
 % z_surf_proj = elev_img_to_surf_proj(xyz_img, fs_proc_elev_xy);
 %     keyboard

@@ -3,6 +3,7 @@
 out_path = [getappdata(0,'proj_path') '\temp\process_images'];
 mkdir(out_path);
 
+% n=14
 
 elev_uint8=@(x) uint8(50+x.* 200./size(xyz_gs,3));
 
@@ -19,11 +20,12 @@ first_thresh = max(bw_nucleii_xyz(c_sub,r_sub,:),[],3) ;
 imwrite(first_thresh,[out_path '/initial_3d_thresh.tif']);
 
 % Initial unbridged elevtation image
-
+initial_unbridged_elev_xy = unbridged_elev_xy(c_sub,r_sub,:);
+imwrite(elev_uint8(initial_unbridged_elev_xy),[out_path '/initial_elev_xy_unbridged.tif']);
 
 % Initial bridged Elevation image
-initial_elev_xy_bridged = elev_xy(c_sub,r_sub,:);
-imwrite(elev_uint8(initial_elev_xy_bridged),[out_path '/initial_elev_xy_bridged.tif']);
+initial_bridged_elev_xy = bridged_elev_xy(c_sub,r_sub,:);
+imwrite(elev_uint8(initial_bridged_elev_xy),[out_path '/initial_elev_xy_bridged.tif']);
 
 % Initial Surface Z projection threshold
 initial_zproj_surf_thresh = max(z_proj_thresh(c_sub,r_sub,:),[],3) ;

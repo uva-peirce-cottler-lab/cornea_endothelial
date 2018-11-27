@@ -73,8 +73,8 @@ for n=14:numel(tif_names_sarr);
     clear out_args;
     
     % Locate extent of 3d image to z project for a surface z projection
-    elev_xy = seg3d_2_elev_img(bw_nucleii_xyz,1);
-    [z_proj_thresh_1, z_proj_fill_1] = elev_img_to_zsurf_proj(bw_nucleii_xyz, elev_xy);
+    [bridged_elev_xy, unbridged_elev_xy] = seg3d_2_elev_img(bw_nucleii_xyz,1);
+    [z_proj_thresh_1, z_proj_fill_1] = elev_img_to_zsurf_proj(bw_nucleii_xyz, bridged_elev_xy);
     
     z_proj_gs_xyz = xyz_gs;
     z_proj_gs_xyz(~z_proj_fill_1)=0;
