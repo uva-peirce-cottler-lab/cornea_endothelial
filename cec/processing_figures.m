@@ -1,9 +1,11 @@
+% function processing_figures
 
 
+suff = [num2str(n) '_'];
 out_path = [getappdata(0,'proj_path') '\temp\process_images'];
 mkdir(out_path);
 
-% n=14
+% n=11
 
 elev_uint8=@(x) uint8(50+x.* 200./size(xyz_gs,3));
 
@@ -13,23 +15,23 @@ r_sub = 1024*3+256+400+(1:350);
 
 % Greyscale raw dapi image
 gs_dapi_img = max(xyz_gs(c_sub,r_sub,:),[],3);
-imwrite(gs_dapi_img,[out_path '/gs_dapi_img.tif']);
+imwrite(gs_dapi_img,[out_path '/' suff 'gs_dapi_img.tif']);
 
 % Initial 3D thresh
 first_thresh = max(bw_nucleii_xyz(c_sub,r_sub,:),[],3) ;
-imwrite(first_thresh,[out_path '/initial_3d_thresh.tif']);
+imwrite(first_thresh,[out_path '/' suff 'initial_3d_thresh.tif']);
 
 % Initial unbridged elevtation image
 initial_unbridged_elev_xy = unbridged_elev_xy(c_sub,r_sub,:);
-imwrite(elev_uint8(initial_unbridged_elev_xy),[out_path '/initial_elev_xy_unbridged.tif']);
+imwrite(elev_uint8(initial_unbridged_elev_xy),[out_path '/' suff 'initial_elev_xy_unbridged.tif']);
 
 % Initial bridged Elevation image
 initial_bridged_elev_xy = bridged_elev_xy(c_sub,r_sub,:);
-imwrite(elev_uint8(initial_bridged_elev_xy),[out_path '/initial_elev_xy_bridged.tif']);
+imwrite(elev_uint8(initial_bridged_elev_xy),[out_path '/' suff 'initial_elev_xy_bridged.tif']);
 
 % Initial Surface Z projection threshold
-initial_zproj_surf_thresh = max(z_proj_thresh(c_sub,r_sub,:),[],3) ;
-imwrite(initial_zproj_surf_thresh,[out_path '/initial_zproj_surf_thresh.tif']);
+initial_zproj_surf_thresh = max(z_proj_thresh_1(c_sub,r_sub,:),[],3) ;
+imwrite(initial_zproj_surf_thresh,[out_path '/' suff 'initial_zproj_surf_thresh.tif']);
 
 % Initial surface z projection of thresh
 % z_proj_fig = max(z_proj(c_sub,r_sub,:),[],3) ;
@@ -37,32 +39,32 @@ imwrite(initial_zproj_surf_thresh,[out_path '/initial_zproj_surf_thresh.tif']);
 
 % Initial surface z projection of grayscale image
 initial_zproj_surf_gs = max(z_proj_gs_1(c_sub,r_sub,:),[],3);
-imwrite(initial_zproj_surf_gs,[out_path '/initial_zproj_surf_gs.tif']);
+imwrite(initial_zproj_surf_gs,[out_path '/' suff 'initial_zproj_surf_gs.tif']);
 
 
 %% Second pass
 % Second unbriged elevation image
 second_unbridged_elev_xy = z_surf(c_sub,r_sub,:);
-imwrite(elev_uint8(second_unbridged_elev_xy),[out_path '/second_unbridged_elev_xy.tif']);
+imwrite(elev_uint8(second_unbridged_elev_xy),[out_path '/' suff 'second_unbridged_elev_xy.tif']);
 
 % Second bridged elevation image
 second_bridged_elev_xy = z_surf_max(c_sub,r_sub,:);
-imwrite(elev_uint8(second_bridged_elev_xy),[out_path '/second_bridged_elev_xy.tif']);
+imwrite(elev_uint8(second_bridged_elev_xy),[out_path '/' suff 'second_bridged_elev_xy.tif']);
 
 % Second z_projection thresh
 second_z_proj_thresh = z_proj_thresh2(c_sub,r_sub,:);
-imwrite(second_z_proj_thresh,[out_path '/second_zproj_surf_thresh.tif']);
+imwrite(second_z_proj_thresh,[out_path '/' suff 'second_zproj_surf_thresh.tif']);
 
 % Second z_projection grayscale
 second_zproj_surf_gs = z_proj_ch2(c_sub,r_sub,:);
-imwrite(second_zproj_surf_gs,[out_path '/second_zproj_surf_gs.tif']);
+imwrite(second_zproj_surf_gs,[out_path '/' suff 'second_zproj_surf_gs.tif']);
 
 % Final segmented nucleotides
 cc_passed_single_nuc.PixelIdxList = ...
     cc_passed_single_nuc.PixelIdxList(randperm(cc_passed_single_nuc.NumObjects));
 RGB = label2rgb(labelmatrix(cc_passed_single_nuc));
 final_nuc_seg = RGB(c_sub,r_sub,:);
-imwrite(final_nuc_seg,[out_path '/final_nuc_seg.tif']);
+imwrite(final_nuc_seg,[out_path '/' suff 'final_nuc_seg.tif']);
 
 
 %Second z surface projection rgb
@@ -71,11 +73,12 @@ second_z_surf_b = imadjust(max( uint8(z_proj_fill2) .*squeeze(xychz_img(:,:,2,:)
 second_z_surf_rgb = cat(3, second_z_surf_r,...
     zeros(img_dim(1:2),'uint8'),second_z_surf_b);
 second_z_surf_proj_rgb = second_z_surf_rgb(c_sub,r_sub,:);
-imwrite(second_z_surf_proj_rgb,[out_path '/second_z_surf_proj_rgb.tif']);
+imwrite(second_z_surf_proj_rgb,[out_path '/' suff 'second_z_surf_proj_rgb.tif']);
 
 % RFP z projection threshold
 second_z_proj_thresh_cell_marker = z_proj_ch1_thresh(c_sub,r_sub,:);
-imwrite(second_z_proj_thresh_cell_marker,[out_path '/second_z_proj_thresh_cell_marker.tif']);
+imwrite(second_z_proj_thresh_cell_marker,[out_path '/' suff 'second_z_proj_thresh_cell_marker.tif']);
+return
 
 % Nuclei with/without rfp labeling
 % Recalculate marked stat of 
@@ -93,7 +96,7 @@ cc_unmarked=cc_passed_single_nuc; cc_unmarked.NumObjects = sum(~is_nucleii_marke
 cc_unmarked.PixelIdxList = cc_passed_single_nuc.PixelIdxList(~is_nucleii_marked);
 nuc_mark_state_gs_tile = uint8(255.*(labelmatrix(cc_marked)>0) + 100.*(labelmatrix(cc_unmarked)>0));
 nuc_mark_state_gs = nuc_mark_state_gs_tile(c_sub,r_sub,:);
-imwrite(nuc_mark_state_gs,[out_path '/nuc_mark_state_gs.tif']);
+imwrite(nuc_mark_state_gs,[out_path '/' suff 'nuc_mark_state_gs.tif']);
 
 % Color bar for elevation image
 wd = 20; n_slices = size(xyz_gs,3);
@@ -102,7 +105,7 @@ delta = floor(350./n_slices);
  for z=1:n_slices
      color_bar(1+delta*(z-1):delta*z,:)=50+z*200./n_slices;
  end
- imwrite(color_bar,[out_path '/color_bar.tif']);
+ imwrite(color_bar,[out_path '/' suff 'color_bar.tif']);
 
  
  % 3D isosurface

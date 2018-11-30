@@ -16,7 +16,7 @@ tif_names_sarr = dir([in_path '/orig*.tif']);
 
 
 %% Create surface zproj image
-for n=14:numel(tif_names_sarr);
+for n=1:numel(tif_names_sarr);
     
     fprintf('Loading: %s\n',tif_names_sarr(n).name);
 %      if ~isempty(dir([out_path '/z_proj_' tif_names_sarr(n).name 'f'])); continue; end
@@ -147,6 +147,8 @@ for n=14:numel(tif_names_sarr);
     % Export basic validation images
      validation_images_from_tile(z_proj,rgb_thresh>0, {tif_names_sarr(:).name}', n);
         
+     
+     processing_figures
 end
 
 

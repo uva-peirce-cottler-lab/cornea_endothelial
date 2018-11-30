@@ -27,12 +27,12 @@ set(gcf,'position',[200 200 120 125])
 
 plot_2sample(f7_1a_hsp90_norm_viniculin(:,1),f7_1a_hsp90_norm_viniculin(:,2),...
     'HSP90 Expression',{sprintf('Ctrl'),sprintf('CEC')});
-set(gcf,'position',[ 680   652   100   150])
+set(gcf,'position',[ 680   652   170   150])
 [h,p]=ttest2(f7_1a_hsp90_norm_viniculin(:,1),f7_1a_hsp90_norm_viniculin(:,2))
 
 plot_2sample(f7_2_asma_norm_viniculin(:,1),f7_2_asma_norm_viniculin(:,2),...
     'aSMA Expression',{'Ctrl','CEC'});
-set(gcf,'position',[ 680   652   100   150])
+set(gcf,'position',[ 680   652   170   150])
 [h,p]=ttest(f7_2_asma_norm_viniculin(:,1),f7_2_asma_norm_viniculin(:,2))
 
 
